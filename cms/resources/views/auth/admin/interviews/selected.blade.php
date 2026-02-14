@@ -14,13 +14,13 @@
             <table class="table">
                 <thead>
                     <tr>
-                    <th>Contact</th>
+                    <th>Employee Name</th>
                         <th>Job Role</th>
                         <th>Interview Round</th>
                         <th>Selected Date</th>
                         <th>Interviewer</th>
                         
-                        <th>Employee Name</th>
+                        <th>Contact</th>
                         <th>Joining Date</th>
                         
                      
@@ -185,7 +185,7 @@
     display: inline-block;
 }
 
-.badge-info { background-color: #17a2b8; color: white; }
+.badge-info { background-color: #28a745 !important; color: white !important; }
 .badge-success { background-color: #28a745; color: white; }
 
 .job-role {

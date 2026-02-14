@@ -36,10 +36,7 @@
                     @forelse($interviews as $interview)
                         <tr id="interview-row-{{ $interview->id }}">
                             <td>
-                                <div>
-                                    <strong>{{ $interview->candidate_name }}</strong><br>
-                                    <small class="text-muted">{{ $interview->candidate_email }}</small>
-                                </div>
+                                <strong>{{ $interview->candidate_name }}</strong>
                             </td>
                             <td>{{ $interview->job_role }}</td>
                             <td>
@@ -183,11 +180,11 @@
     display: inline-block;
 }
 
-.badge-info { background-color: #17a2b8; color: white; }
-.badge-success { background-color: #28a745; color: white; }
-.badge-warning { background-color: #ffc107; color: #212529; }
-.badge-primary { background-color: #007bff; color: white; }
-.badge-danger { background-color: #dc3545; color: white; }
+.badge-info { background-color: #28a745 !important; color: white !important; }
+.badge-success { background-color: #28a745 !important; color: white !important; }
+.badge-warning { background-color: #ffc107 !important; color: #212529 !important; }
+.badge-primary { background-color: #28a745 !important; color: white !important; }
+.badge-danger { background-color: #dc3545 !important; color: white !important; }
 .badge-secondary { background-color: #6c757d; color: white; }
 
 .btn {
