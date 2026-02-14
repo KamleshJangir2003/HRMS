@@ -265,19 +265,21 @@
         </div>
 
         <div class="col-xl-3 col-md-6">
-            <div class="card stat-card bg-success">
-                <div class="card-body">
-                    <div class="stat-title">Interested</div>
-                    <div class="stat-number">{{ $stats['totalInterviews'] ?? 0 }}</div>
-                    <i class="bi bi-chat-dots-fill"></i>
+            <a href="{{ url('/admin/leads/interested') }}" class="text-decoration-none">
+                <div class="card stat-card bg-success">
+                    <div class="card-body">
+                        <div class="stat-title">Interested</div>
+                        <div class="stat-number">{{ $stats['interested'] ?? 0 }}</div>
+                        <i class="bi bi-chat-dots-fill"></i>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-xl-3 col-md-6">
             <div class="card stat-card bg-danger">
                 <div class="card-body">
                     <div class="stat-title"> Interviews Schedule</div>
-                    <div class="stat-number">{{ $stats['rejectedInterviews'] ?? 0 }}</div>
+                    <div class="stat-number">{{ $stats['scheduledInterviews'] ?? 0 }}</div>
                     <i class="bi bi-x-circle-fill"></i>
                 </div>
             </div>
@@ -286,7 +288,7 @@
             <div class="card stat-card bg-warning">
                 <div class="card-body">
                     <div class="stat-title">Employee Hired</div>
-                    <div class="stat-number">{{ $stats['newTickets'] ?? 0 }}</div>
+                    <div class="stat-number">{{ $stats['employeeHired'] ?? 0 }}</div>
                     <i class="bi bi-ticket-perforated"></i>
                 </div>
             </div>
@@ -295,7 +297,7 @@
             <div class="card stat-card bg-secondary">
                 <div class="card-body">
                     <div class="stat-title">Selected Employee</div>
-                    <div class="stat-number">{{ $stats['totalTickets'] ?? 0 }}</div>
+                    <div class="stat-number">{{ $stats['selectedEmployee'] ?? 0 }}</div>
                     <i class="bi bi-ticket-detailed"></i>
                 </div>
             </div>

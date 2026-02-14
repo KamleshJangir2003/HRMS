@@ -376,13 +376,40 @@
     transform: scale(0.97);
 }
 
+/* ADD EMPLOYEE BUTTON */
+.header-icon[href*="employee/create"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #e8f5e8;
+    border: 1px solid #c3e6c3;
+    color: #198754;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+}
+
+.header-icon[href*="employee/create"]:hover {
+    background: #198754;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(25,135,84,0.3);
+    transform: translateY(-1px);
+}
+
+.header-icon[href*="employee/create"] i {
+    font-size: 16px;
+}
+
 
 </style>
 <style>
     /* GLOBAL SEARCH */
 .global-search {
     position: relative;
-    width: 350px;
+    width: 300px;
 }
 
 .global-search input {
@@ -445,7 +472,7 @@
 }
 
 .search-result-avatar {
-    width: 36px;
+    width: 30px;
     height: 36px;
     border-radius: 50%;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -494,6 +521,43 @@
     font-style: italic;
 }
 
+
+.header-icon[href*="employee/create"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #198754, #20c997);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(25,135,84,0.25);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Icon size */
+.header-icon[href*="employee/create"] i {
+    font-size: 15px;
+}
+
+/* Hover effect */
+.header-icon[href*="employee/create"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(25,135,84,0.35);
+    background: linear-gradient(135deg, #157347, #1aa179);
+}
+
+/* Active click */
+.header-icon[href*="employee/create"]:active {
+    transform: scale(0.96);
+}
+
+
 </style>
 
 <header class="top-header">
@@ -510,6 +574,8 @@
     <i class="fa-solid fa-file-excel"></i>
     <i class="fa-solid fa-chevron-down"></i>
 </button>
+
+        
 
             
             <ul class="dropdown-menu" id="excelMenu" style="padding: 10px; width: 260px;">
@@ -599,7 +665,12 @@
 </div>
 
 
+
     <div class="header-right">
+    <a href="{{ route('admin.employee.create') }}" class="header-icon" title="Add Employee">
+    <i class="fa-solid fa-user-plus"></i>
+    
+</a>
     <!-- TEST BUTTON -->
     <!-- <button onclick="alert('Test works!')" style="background: red; color: white; padding: 10px;">TEST</button> -->
     

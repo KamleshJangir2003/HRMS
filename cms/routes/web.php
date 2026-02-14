@@ -242,6 +242,10 @@ Route::middleware(['auth'])->group(function () {
                     'rejectedInterviews' => \DB::table('interviews')->where('result', 'Rejected')->count(),
                     'newTickets' => \App\Models\Ticket::where('viewed_at', null)->count(),
                     'totalTickets' => \App\Models\Ticket::count(),
+                    'interested' => \DB::table('leads')->where('condition_status', 'Intrested')->count(),
+                    'scheduledInterviews' => \DB::table('interviews')->where('status', 'Scheduled')->count(),
+                    'employeeHired' => Employee::where('user_type', 'employee')->where('is_approved', true)->count(),
+                    'selectedEmployee' => \DB::table('interviews')->where('result', 'Selected')->count(),
                 ];
                 
                 // Get active job openings for popup

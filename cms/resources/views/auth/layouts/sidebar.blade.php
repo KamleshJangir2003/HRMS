@@ -50,6 +50,40 @@
     background: transparent;
 }
 
+/* Company Info Styles */
+.sidebar-header {
+    padding: 20px 15px;
+    border-bottom: 1px solid #374151;
+}
+
+.company-info {
+    display: flex;
+    align-items: center;
+}
+
+.company-logo {
+    width: 40px;
+    height: 40px;
+    background: #3b82f6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+}
+
+.company-logo i {
+    color: white;
+    font-size: 20px;
+}
+
+.company-name {
+    color: #f9fafb;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
 
 /* ===============================
    AUTO HIDE SIDEBAR ON CURSOR
@@ -80,11 +114,17 @@
 </style>
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-    <div class="user-info">
-        <i class="fa-solid fa-user-circle"></i>
-        <span class="user-name">HR Admin</span>
+        <div class="company-info">
+            <div class="company-logo">
+                <i class="fa-solid fa-building"></i>
+            </div>
+            <span class="company-name">Kwikster HRMS</span>
+        </div>
+        <!-- <div class="user-info">
+            <i class="fa-solid fa-user-circle"></i>
+            <span class="user-name">HR Admin</span>
+        </div> -->
     </div>
-</div>
 
 
     <ul class="sidebar-menu">
