@@ -17,12 +17,22 @@ class EmployeeDocumentController extends Controller
     const REQUIRED_DOCUMENTS = [
         'aadhar_card',
         'pan_card',
-        'marksheet_10th',
-        'marksheet_12th',
-        'graduation',
-        'diploma',
-        'post_graduation',
-        'passbook',
+        'photo',
+        'passbook', // or cheque (any one)
+    ];
+
+    const OPTIONAL_GROUPS = [
+        // Any one from 10th/12th
+        ['marksheet_10th', 'marksheet_12th'],
+        // Any one from diploma/graduation/pg
+        ['diploma', 'graduation', 'post_graduation'],
+        // Any one from passbook/cheque
+        ['passbook', 'cheque'],
+    ];
+
+    const OPTIONAL_DOCUMENTS = [
+        'bank_statement',
+        'experience_letter',
     ];
 
     public function __construct()
@@ -76,21 +86,61 @@ class EmployeeDocumentController extends Controller
             ->get()
             ->map(function($employee) {
                 $documents = $employee->documents;
-                $totalRequired = count(self::REQUIRED_DOCUMENTS);
-                $uploadedCount = $documents->unique('document_type')->count();
+                
+                // Calculate required documents based on actual logic
+                $requiredCount = count(self::REQUIRED_DOCUMENTS);
+                
+                // Add one from each optional group
+                foreach (self::OPTIONAL_GROUPS as $group) {
+                    $hasAnyFromGroup = $documents->whereIn('document_type', $group)
+                        ->whereIn('status', ['uploaded', 'submitted', 'verified'])
+                        ->count() > 0;
+                    if ($hasAnyFromGroup) {
+                        $requiredCount++;
+                    }
+                }
+                
+                $uploadedCount = $documents->whereIn('status', ['uploaded', 'submitted', 'verified'])->unique('document_type')->count();
                 $verifiedCount = $documents->where('status', 'verified')->unique('document_type')->count();
                 $submittedCount = $documents->where('status', 'submitted')->unique('document_type')->count();
                 $pendingCount = $documents->whereIn('status', ['pending', 'uploaded'])->unique('document_type')->count();
                 
+                // Check if all required documents are uploaded
+                $allRequiredUploaded = true;
+                
+                // Check required documents
+                foreach (self::REQUIRED_DOCUMENTS as $docType) {
+                    $hasDoc = $documents->where('document_type', $docType)
+                        ->whereIn('status', ['uploaded', 'submitted', 'verified'])
+                        ->count() > 0;
+                    if (!$hasDoc) {
+                        $allRequiredUploaded = false;
+                        break;
+                    }
+                }
+                
+                // Check optional groups (at least one from each group)
+                if ($allRequiredUploaded) {
+                    foreach (self::OPTIONAL_GROUPS as $group) {
+                        $hasAnyFromGroup = $documents->whereIn('document_type', $group)
+                            ->whereIn('status', ['uploaded', 'submitted', 'verified'])
+                            ->count() > 0;
+                        if (!$hasAnyFromGroup) {
+                            $allRequiredUploaded = false;
+                            break;
+                        }
+                    }
+                }
+                
                 $employee->document_stats = [
-                    'total_required' => $totalRequired,
-                    'uploaded' => $uploadedCount,
+                    'total_required' => 6, // 3 required + 3 groups (one from each)
+                    'uploaded' => $allRequiredUploaded ? 6 : $uploadedCount,
                     'verified' => $verifiedCount,
                     'submitted' => $submittedCount,
                     'pending' => $pendingCount,
-                    'missing' => $totalRequired - $uploadedCount,
+                    'missing' => $allRequiredUploaded ? 0 : (6 - $uploadedCount),
                     'status' => $uploadedCount == 0 ? 'not_started' : 
-                               ($verifiedCount == $totalRequired ? 'completed' : 
+                               ($allRequiredUploaded && $verifiedCount >= 6 ? 'completed' : 
                                ($submittedCount > 0 ? 'submitted' : 
                                ($pendingCount > 0 ? 'pending' : 'in_progress')))
                 ];
@@ -138,7 +188,7 @@ class EmployeeDocumentController extends Controller
     public function adminUploadDocument(Request $request, $userId)
     {
         $request->validate([
-            'document_type' => 'required|in:' . implode(',', self::REQUIRED_DOCUMENTS),
+            'document_type' => 'required|in:aadhar_card,pan_card,photo,marksheet_10th,marksheet_12th,graduation,diploma,post_graduation,passbook,cheque,bank_statement,experience_letter',
             'document'      => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
@@ -262,7 +312,7 @@ class EmployeeDocumentController extends Controller
     public function uploadDocument(Request $request)
     {
         $request->validate([
-            'document_type' => 'required|in:' . implode(',', self::REQUIRED_DOCUMENTS),
+            'document_type' => 'required|in:aadhar_card,pan_card,photo,marksheet_10th,marksheet_12th,graduation,diploma,post_graduation,passbook,cheque,bank_statement,experience_letter',
             'document'      => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 

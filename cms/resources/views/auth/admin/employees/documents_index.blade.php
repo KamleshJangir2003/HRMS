@@ -126,7 +126,7 @@
                                 @method('PATCH')
                                 <select name="hired_status" class="form-select form-select-sm" style="width: 120px;" onchange="this.form.submit()">
                                     <option value="not_hired" {{ ($emp->hired_status ?? 'not_hired') == 'not_hired' ? 'selected' : '' }}>Not Hired</option>
-                                    <option value="hired" {{ ($emp->hired_status ?? 'not_hired') == 'hired' ? 'selected' : '' }}>Hired</option>
+                                    <option value="hired" {{ ($emp->hired_status ?? 'not_hired') == 'hired' ? 'selected' : '' }} {{ $emp->document_stats['uploaded'] != $emp->document_stats['total_required'] ? 'disabled' : '' }}>Hired</option>
                                 </select>
                             </form>
                         </td>

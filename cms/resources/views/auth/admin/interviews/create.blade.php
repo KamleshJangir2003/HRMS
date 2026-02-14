@@ -157,6 +157,11 @@
                     </div>
                 </div>
             </div>
+             <!-- Interviewer -->
+             <div class="section">
+                <div class="section-title">Interviewer / Notes</div>
+                <textarea name="interviewer_notes" placeholder="Notes for interviewer only"></textarea>
+            </div>
 
             <!-- Notes -->
             <div class="section">

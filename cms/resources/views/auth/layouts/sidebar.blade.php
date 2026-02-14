@@ -310,7 +310,7 @@
         <li><a href="{{ route('admin.expenses.index') }}"><i class="fa-solid fa-money-bill-wave"></i> Expenses</a></li>
         <li><a href="{{ route('admin.tickets.index') }}"><i class="fa-solid fa-ticket-alt"></i> Employee Tickets</a></li>
         <li><a href="{{ route('admin.employee-expenses.index') }}"><i class="fa-solid fa-receipt"></i> Reimbursement</a></li>
-        <li class="logout"><a href="#">Logout</a></li>
+        <!-- <li class="logout"><a href="#">Logout</a></li> -->
     </ul>
 </div>
 

@@ -176,11 +176,11 @@
                         </div> -->
                         <div class="form-group">
                             <label>UAN Number</label>
-                            <input type="text" value="{{ $employee->uan_number }}" readonly>
+                            <input type="text" value="{{ $employee->uan_number }}">
                         </div>
                         <div class="form-group">
                             <label>ESI</label>
-                            <input type="text" value="{{ $employee->uan_number }}" readonly>
+                            <input type="text" value="{{ $employee->uan_number }}">
                         </div>
                     </div>
                 </div>
