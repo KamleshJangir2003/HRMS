@@ -17,7 +17,7 @@
                     <div class="search-box">
                         <i class="fa-solid fa-search"></i>
                         <input type="text" name="search" id="searchInput" placeholder="Search by name, number, or role..." value="{{ request('search') }}">
-                        <button type="submit" class="search-btn">Search</button>
+                        <!-- <button type="submit" class="search-btn">Search</button> -->
                         @if(request('search'))
                             <a href="{{ route('admin.leads.interested') }}" class="clear-btn">Clear</a>
                         @endif
@@ -378,7 +378,7 @@
 
 .search-form {
     flex: 1;
-    max-width: 500px;
+    max-width: 400px;
 }
 
 .search-box {
@@ -402,7 +402,8 @@
     flex: 1;
     padding: 10px 12px 10px 35px;
     border: 1px solid #ddd;
-    border-radius: 8px 0 0 8px;
+    border-radius: 30px;
+
     font-size: 14px;
     background: #fff;
     border-right: none;

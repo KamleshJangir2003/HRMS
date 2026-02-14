@@ -1,5 +1,233 @@
 @extends('auth.layouts.app')
+<style>
+    /* ===============================
+   STATUS POPUP NOTIFICATION
+================================ */
 
+.header-top {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.status-popup {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    padding: 20px;
+    min-width: 300px;
+    z-index: 10000;
+    transform: translateX(400px);
+    opacity: 0;
+    transition: all 0.4s ease;
+    border-left: 4px solid #28a745;
+}
+
+.status-popup.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.status-popup.success {
+    border-left-color: #28a745;
+}
+
+.status-popup.error {
+    border-left-color: #dc3545;
+}
+
+.status-popup.warning {
+    border-left-color: #ffc107;
+}
+
+.status-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.status-popup-title {
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-popup-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.status-popup-close:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.status-popup-message {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.status-popup-details {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #555;
+}
+
+/* ===============================
+   STATUS DROPDOWN DESIGN
+================================ */
+
+.callback-status-select {
+    padding: 6px 30px 6px 12px;
+    font-size: 12px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    font-weight: 500;
+    min-width: 140px;
+    transition: all 0.3s ease;
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+}
+
+/* Dropdown Arrow */
+.callback-status-select {
+    background-image: url("data:image/svg+xml;utf8,<svg fill='%23666' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5 7l5 5 5-5H5z'/></svg>");
+}
+
+/* STATUS COLORS */
+
+.callback-status-select[data-status="call_backs"],
+.callback-status-select option[value="call_backs"] {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.callback-status-select[data-status="interested"] {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.callback-status-select[data-status="rejected"] {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.callback-status-select[data-status="not_interested"] {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.callback-status-select[data-status="wrong_number"] {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.callback-status-select:focus {
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+/* ===============================
+   MODERN SEARCH DESIGN
+================================ */
+
+/* ===============================
+   PREMIUM HRMS SEARCH BAR
+================================ */
+
+.search-form {
+    flex: 1;
+    max-width: 500px;
+}
+
+.search-box {
+    position: relative;
+    width: 80%;
+}
+
+.search-box input {
+    width: 80%;
+    height: 42px;
+    padding: 0 45px 0 40px;
+    border-radius: 30px !important; /* Full round */
+    border: 1px solid #e0e6ed !important;
+    background: #f8fafc;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+
+/* Focus Effect */
+.search-box input:focus {
+    background: #ffffff;
+    border-color: #4f46e5;
+    box-shadow: 0 4px 12px rgba(79,70,229,0.15);
+    outline: none;
+}
+
+/* Search Icon */
+.search-box i.fa-search {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+/* Clear Button */
+.clear-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #eef2ff;
+    color: #4f46e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+    background: #4f46e5;
+    color: #fff;
+}
+
+
+</style>
 @section('content')
 <div class="main-content">
     <div class="card leads-card">
@@ -10,7 +238,7 @@
                     <div class="search-box">
                         <i class="fa-solid fa-search"></i>
                         <input type="text" name="search" id="searchInput" placeholder="Search by name, number, role, status, or reason..." value="{{ request('search') }}" autocomplete="off">
-                        <button type="submit" class="search-btn">Search</button>
+                        <!-- <button type="submit" class="search-btn">Search</button> -->
                         @if(request('search'))
                             <a href="{{ route('admin.leads.rejected') }}" class="clear-btn">Clear</a>
                         @endif
@@ -82,7 +310,7 @@
                                 </a>
                             </td>
                             <td>
-                                <a href="{{ route('admin.leads.cv', $lead->id) }}" class="view-btn">View CV</a>
+                                <a href="{{ route('admin.leads.cv', $lead->id) }}" class="view-btn">CV</a>
                             </td>
                         </tr>
                         @empty
