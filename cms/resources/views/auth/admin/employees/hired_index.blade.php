@@ -88,12 +88,11 @@
                             <form method="POST" action="{{ route('admin.employees.hired.update', $employee->id) }}" class="d-inline">
                                 @csrf
                                 <input type="date" name="joining_date" class="form-control form-control-sm" 
-                                       value="{{ $employee->joining_date ? $employee->joining_date->format('Y-m-d') : '' }}"
+                                       value="{{ $employee->joining_date ? $employee->joining_date->format('Y-m-d') : date('Y-m-d') }}"
                                        onchange="this.form.submit()" style="font-size: 12px; width: 140px;">
                                 <input type="hidden" name="induction_round" value="{{ $employee->induction_round ?? 'yes' }}">
                                 <input type="hidden" name="training" value="{{ $employee->training ?? 'yes' }}">
                                 <input type="hidden" name="certification_period" value="{{ $employee->certification_period ?? 5 }}">
-                                <input type="hidden" name="action_status" value="{{ $employee->action_status ?? 'selected' }}">
                             </form>
                         </td>
                         <td>
@@ -123,44 +122,64 @@
                         <td>
                             @if($employee->joining_date)
                                 @php
-                                    $joiningDate = $employee->joining_date;
-                                    $certificationEndDate = $joiningDate->addDays($employee->certification_period ?? 5);
-                                    $today = now();
-                                    $daysRemaining = $today->diffInDays($certificationEndDate, false);
+                                    $joiningDate = $employee->joining_date->startOfDay();
+                                    $today = now()->startOfDay();
+                                    $daysCompleted = $joiningDate->diffInDays($today) + 1; // +1 because joining day counts as day 1
+                                    $totalDays = 5;
+                                    $certificationCompleted = $daysCompleted >= $totalDays;
                                 @endphp
                                 
-                                @if($daysRemaining > 0)
-                                    <span class="certification-days">{{ $daysRemaining }} days left</span>
-                                @elseif($daysRemaining == 0)
-                                    <span class="certification-days bg-warning text-dark">Today is last day</span>
+                                @if($daysCompleted <= $totalDays)
+                                    <span class="certification-days">Day {{ $daysCompleted }} of {{ $totalDays }}</span>
                                 @else
-                                    <span class="certification-days bg-danger text-white">Completed {{ abs($daysRemaining) }} days ago</span>
+                                    <span class="certification-days bg-success text-white">{{ $totalDays }} Days Completed</span>
                                 @endif
                             @else
                                 <span class="certification-days bg-secondary text-white">No joining date</span>
+                                @php $certificationCompleted = false; @endphp
                             @endif
                         </td>
                         <td>
-                            <form method="POST" action="{{ route('admin.employees.hired.update', $employee->id) }}" class="d-inline">
-                                @csrf
-                                <select name="action_status" class="form-select form-select-sm" onchange="toggleReasonField(this)" style="min-width: 120px;">
-                                    <option value="" disabled {{ !($employee->action_status ?? '') ? 'selected' : '' }}>Select Status</option>
-                                    <option value="selected" {{ ($employee->action_status ?? '') == 'selected' ? 'selected' : '' }}>Selected</option>
-                                    <option value="not_selected" {{ ($employee->action_status ?? '') == 'not_selected' ? 'selected' : '' }}>Not Selected</option>
-                                </select>
-                                <input type="hidden" name="induction_round" value="{{ $employee->induction_round ?? 'yes' }}">
-                                <input type="hidden" name="training" value="{{ $employee->training ?? 'yes' }}">
-                                <input type="hidden" name="certification_period" value="{{ $employee->certification_period ?? 5 }}">
-                                
-                                @if(($employee->action_status ?? '') == 'reason')
-                                <div class="mt-2">
-                                    <input type="text" name="action_reason" class="form-control form-control-sm" 
-                                           placeholder="Enter reason..." value="{{ $employee->action_reason ?? '' }}"
-                                           style="font-size: 11px;">
-                                    <button type="submit" class="btn btn-primary btn-sm mt-1">Update</button>
+                            @if($employee->joining_date)
+                                @php
+                                    $joiningDate = $employee->joining_date->startOfDay();
+                                    $today = now()->startOfDay();
+                                    $daysCompleted = $joiningDate->diffInDays($today) + 1;
+                                    $totalDays = 5;
+                                    $certificationCompleted = $daysCompleted >= $totalDays;
+                                @endphp
+                            @else
+                                @php $certificationCompleted = false; @endphp
+                            @endif
+                            
+                            @if($certificationCompleted)
+                                <form method="POST" action="{{ route('admin.employees.hired.update', $employee->id) }}" class="d-inline">
+                                    @csrf
+                                    <select name="action_status" class="form-select form-select-sm" onchange="toggleReasonField(this)" style="min-width: 120px;">
+                                        <option value="" disabled {{ !($employee->action_status ?? '') ? 'selected' : '' }}>Select Status</option>
+                                        <option value="selected" {{ ($employee->action_status ?? '') == 'selected' ? 'selected' : '' }}>Selected</option>
+                                        <option value="not_selected" {{ ($employee->action_status ?? '') == 'not_selected' ? 'selected' : '' }}>Not Selected</option>
+                                    </select>
+                                    <input type="hidden" name="induction_round" value="{{ $employee->induction_round ?? 'yes' }}">
+                                    <input type="hidden" name="training" value="{{ $employee->training ?? 'yes' }}">
+                                    <input type="hidden" name="certification_period" value="{{ $employee->certification_period ?? 5 }}">
+                                    
+                                    @if(($employee->action_status ?? '') == 'reason')
+                                    <div class="mt-2">
+                                        <input type="text" name="action_reason" class="form-control form-control-sm" 
+                                               placeholder="Enter reason..." value="{{ $employee->action_reason ?? '' }}"
+                                               style="font-size: 11px;">
+                                        <button type="submit" class="btn btn-primary btn-sm mt-1">Update</button>
+                                    </div>
+                                    @endif
+                                </form>
+                            @else
+                                <div class="text-center">
+                                    <span class="badge bg-warning text-dark">Certification Period Active</span>
+                                    <br>
+                                    <small class="text-muted">Cannot select/reject until 5 days complete</small>
                                 </div>
-                                @endif
-                            </form>
+                            @endif
                         </td>
                     </tr>
                     @empty

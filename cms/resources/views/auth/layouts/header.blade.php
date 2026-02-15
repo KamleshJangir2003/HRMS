@@ -784,12 +784,12 @@ function showStatusPopup(type, title, message, details = null) {
     <label style="font-size: 12px; color: #555;">Select Field</label>
     <select class="form-select form-select-sm" id="roleSelect">
         <option value="">-- Select Role --</option>
-        <option value="python">Python</option>
+        <option value="python">Python Developer</option>
         <option value="python_intern">Python Intern</option>
-        <option value="php">PHP</option>
+        <option value="php">PHP Developer</option>
         <option value="php_intern">PHP Intern</option>
-        <option value="frontend">Frontend</option>
-        <option value="leads_constent">Leads Consistent</option>
+        <option value="frontend">Frontend Developer</option>
+        <option value="leads_constent">leads consistent</option>
         <option value="manager">Manager</option>
         <option value="team_leader">Team Leader</option>
         <option value="hr">HR</option>

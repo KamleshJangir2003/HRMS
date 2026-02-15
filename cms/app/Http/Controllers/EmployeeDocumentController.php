@@ -484,20 +484,52 @@ class EmployeeDocumentController extends Controller
     public function updateHiredEmployee(Request $request, $userId)
     {
         $request->validate([
-            'induction_round' => 'required|in:yes,no',
-            'training' => 'required|in:yes,no',
-            'certification_period' => 'required|integer|min:1|max:30',
-            'action_status' => 'required|in:selected,not_selected,reason'
+            'induction_round' => 'nullable|in:yes,no',
+            'training' => 'nullable|in:yes,no',
+            'certification_period' => 'nullable|integer|min:1|max:30',
+            'action_status' => 'nullable|in:selected,not_selected,reason',
+            'joining_date' => 'nullable|date'
         ]);
 
         $employee = Employee::findOrFail($userId);
-        $employee->update([
-            'induction_round' => $request->induction_round,
-            'training' => $request->training,
-            'certification_period' => $request->certification_period,
-            'action_status' => $request->action_status,
-            'action_reason' => $request->action_reason ?? null
-        ]);
+        
+        // Check if certification period is completed before allowing action_status change
+        if ($request->has('action_status') && $request->action_status) {
+            if (!$employee->joining_date && !$request->joining_date) {
+                return back()->with('error', 'Cannot select/reject employee without joining date');
+            }
+            
+            // Use new joining date if provided, otherwise use existing
+            $joiningDate = $request->joining_date ? \Carbon\Carbon::parse($request->joining_date) : $employee->joining_date;
+            $certificationEndDate = $joiningDate->copy()->addDays($employee->certification_period ?? 5);
+            $today = now();
+            $daysRemaining = $today->diffInDays($certificationEndDate, false);
+            
+            if ($daysRemaining > 0) {
+                return back()->with('error', "Cannot select/reject employee. Certification period ends in {$daysRemaining} days.");
+            }
+        }
+
+        $updateData = [];
+        
+        if ($request->has('induction_round')) {
+            $updateData['induction_round'] = $request->induction_round;
+        }
+        if ($request->has('training')) {
+            $updateData['training'] = $request->training;
+        }
+        if ($request->has('certification_period')) {
+            $updateData['certification_period'] = $request->certification_period;
+        }
+        if ($request->has('joining_date')) {
+            $updateData['joining_date'] = $request->joining_date;
+        }
+        if ($request->has('action_status') && $request->action_status) {
+            $updateData['action_status'] = $request->action_status;
+            $updateData['action_reason'] = $request->action_reason ?? null;
+        }
+        
+        $employee->update($updateData);
 
         // If selected, move to next step (make them active employee)
         if ($request->action_status === 'selected') {
