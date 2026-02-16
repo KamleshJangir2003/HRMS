@@ -198,6 +198,13 @@ class LeadController extends Controller
                 'total_rows' => count($rows) - 1,
                 'errors' => $errors
             ]);
+            
+            // Log activity
+            \App\Models\ActivityLog::log(
+                'Uploaded Leads', 
+                'Lead Management', 
+                "Uploaded {$imported} leads from Excel file"
+            );
 
             $response = [
                 'success' => true, 
@@ -334,6 +341,13 @@ class LeadController extends Controller
                         'new_status' => $status,
                         'reason' => $reason
                     ]);
+                    
+                    // Log activity
+                    \App\Models\ActivityLog::log(
+                        'Updated Lead Status', 
+                        'Lead Management', 
+                        "Changed lead status to {$status} for {$lead->name}"
+                    );
                     
                     return response()->json(['success' => true, 'message' => 'Status updated successfully']);
                 }

@@ -770,7 +770,12 @@ function showStatusPopup(type, title, message, details = null) {
 </li>
 
 <li id="manualEntryForm" style="display: none; padding: 10px; background: #f8f9fa; border-radius: 4px; margin: 5px;">
-    <input type="text" id="manualName" placeholder="Enter Name" class="form-control form-control-sm mb-2">
+<input type="text" 
+       id="manualName" 
+       placeholder="Enter text" 
+       class="form-control form-control-sm mb-2"
+       oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')">
+
     <input type="tel"
        id="manualNumber"
        placeholder="Enter Number"
@@ -805,11 +810,11 @@ function showStatusPopup(type, title, message, details = null) {
     <select class="form-select form-select-sm" id="roleSelect">
         <option value="">-- Select Role --</option>
         <option value="python">Python Developer</option>
-        <option value="python_intern">Python Intern</option>
+        <!-- <option value="python_intern">Python Intern</option> -->
         <option value="php">PHP Developer</option>
-        <option value="php_intern">PHP Intern</option>
+        <!-- <option value="php_intern">PHP Intern</option> -->
         <option value="frontend">Frontend Developer</option>
-        <option value="leads_constent">leads consistent</option>
+        <option value="leads_constent">leads consultant</option>
         <option value="manager">Manager</option>
         <option value="team_leader">Team Leader</option>
         <option value="hr">HR</option>
@@ -819,6 +824,7 @@ function showStatusPopup(type, title, message, details = null) {
         <option value="admin">Admin</option>
         <option value="tele_caller">Tele Caller</option>
         <option value="receptionist">Receptionist</option>
+        <option value="customer_care">Customer Care Executive</option>
     </select>
 </li>
 

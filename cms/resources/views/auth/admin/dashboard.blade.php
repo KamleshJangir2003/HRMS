@@ -888,6 +888,66 @@ document.getElementById("employeeSearch").addEventListener("keyup", function () 
 @endif
 
     </div>
+    
+    <!-- 🔹 Activity Logs Section -->
+    <div class="card table-card mb-4 shadow-sm">
+        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-semibold">
+                📋 Recent Activity Logs
+            </h5>
+            <!-- <a href="{{ url('/admin/activity-logs') }}" class="btn btn-sm btn-primary">
+                <i class="bi bi-eye"></i> View All
+            </a> -->
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Module</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if(isset($recentLogs) && $recentLogs->count() > 0)
+                            @foreach($recentLogs as $log)
+                            <tr>
+                                <td>
+                                    <strong>{{ $log->user_name ?? 'System' }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        @if(str_contains(strtolower($log->action), 'create')) bg-success
+                                        @elseif(str_contains(strtolower($log->action), 'update')) bg-warning
+                                        @elseif(str_contains(strtolower($log->action), 'delete')) bg-danger
+                                        @else bg-info
+                                        @endif">
+                                        {{ $log->action }}
+                                    </span>
+                                </td>
+                                <td>{{ $log->module ?? 'General' }}</td>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ $log->created_at ? $log->created_at->diffForHumans() : 'N/A' }}
+                                    </small>
+                                </td>
+                            </tr>
+                            @endforeach
+                        @else
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox"></i> No recent activity logs found
+                                </td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
     <!-- 🔹 Pending Approvals Table -->
     @if(isset($pendingUsers) && $pendingUsers->count() > 0)
     <div class="card table-card mb-4">

@@ -26,6 +26,14 @@ class AdminAuthController extends Controller
 
         if (Auth::guard('admin')->attempt($request->only('email', 'password'), $request->filled('remember'))) {
             Log::info('Admin login successful');
+            
+            // Log activity
+            \App\Models\ActivityLog::log(
+                'Logged In', 
+                'Authentication', 
+                'Admin logged into system'
+            );
+            
             return redirect()->intended('/admin/dashboard');
         }
 
@@ -37,6 +45,13 @@ class AdminAuthController extends Controller
 
     public function logout(Request $request)
     {
+        // Log activity before logout
+        \App\Models\ActivityLog::log(
+            'Logged Out', 
+            'Authentication', 
+            'Admin logged out from system'
+        );
+        
         Auth::guard('admin')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

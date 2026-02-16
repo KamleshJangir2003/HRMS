@@ -69,6 +69,13 @@ class EmployeeController extends Controller
             'is_approved' => true,
         ]);
 
+        // Log activity
+        \App\Models\ActivityLog::log(
+            'Created Employee', 
+            'Employee Management', 
+            'Created new employee: ' . $request->first_name . ' ' . $request->last_name
+        );
+
         // Create notification
         \App\Helpers\NotificationHelper::employeeAdded($request->first_name . ' ' . $request->last_name);
 
@@ -140,12 +147,27 @@ class EmployeeController extends Controller
             'first_name', 'last_name', 'email', 'user_type', 'department'
         ]));
 
+        // Log activity
+        \App\Models\ActivityLog::log(
+            'Updated Employee', 
+            'Employee Management', 
+            'Updated employee: ' . $employee->first_name . ' ' . $employee->last_name
+        );
+
         return redirect()->route('admin.employees.index')->with('success', 'Employee updated successfully!');
     }
 
     public function destroy($id)
     {
         $employee = Employee::findOrFail($id);
+        
+        // Log activity before deletion
+        \App\Models\ActivityLog::log(
+            'Deleted Employee', 
+            'Employee Management', 
+            'Deleted employee: ' . $employee->first_name . ' ' . $employee->last_name
+        );
+        
         $employee->delete();
         
         return redirect()->route('admin.employees.index')->with('success', 'Employee deleted successfully!');

@@ -106,6 +106,13 @@ class InterviewController extends Controller
 
         // Send notifications
         $this->sendNotifications($interview, $lead);
+        
+        // Log activity
+        \App\Models\ActivityLog::log(
+            'Scheduled Interview', 
+            'Interview Management', 
+            "Scheduled {$request->interview_round} interview for {$lead->name}"
+        );
 
         return redirect()->route('admin.interviews.index')->with('success', 'Interview scheduled successfully!');
     }
@@ -334,6 +341,13 @@ class InterviewController extends Controller
                 'rejection_reason' => $request->rejection_reason,
                 'status' => 'Completed'
             ]);
+            
+            // Log activity
+            \App\Models\ActivityLog::log(
+                'Updated Interview Result', 
+                'Interview Management', 
+                "Marked interview result as {$request->result} for {$interview->candidate_name}"
+            );
 
             $lead = $interview->lead;
             
