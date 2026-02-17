@@ -141,10 +141,21 @@
         @csrf
         <select name="role" required>
             <option value="">Select Role</option>
-            <option value="Developer">Developer</option>
-            <option value="Designer">Designer</option>
-            <option value="Manager">Manager</option>
-            <option value="Tester">Tester</option>
+            <optgroup label="Employee Roles">
+                <option value="Developer">Developer</option>
+                <option value="Designer">Designer</option>
+                <option value="Manager">Manager</option>
+                <option value="Tester">Tester</option>
+            </optgroup>
+            <optgroup label="Intern Roles">
+                <option value="Web Development">Web Development Intern</option>
+                <option value="Mobile Development">Mobile Development Intern</option>
+                <option value="Data Science">Data Science Intern</option>
+                <option value="Digital Marketing">Digital Marketing Intern</option>
+                <option value="UI/UX Design">UI/UX Design Intern</option>
+                <option value="Content Writing">Content Writing Intern</option>
+                <option value="Intern">General Intern</option>
+            </optgroup>
         </select>
         <input type="file" name="excel_file" accept=".xlsx,.xls,.csv" required id="fileInput">
         <button type="submit" class="upload-btn" id="uploadBtn">
@@ -417,7 +428,7 @@ document.addEventListener('DOMContentLoaded', function() {
             currentRow = row;
             
             // Show modal for statuses that require reason
-            if (['Not Interested', 'Call Back', 'Rejected'].includes(status)) {
+            if (['Not Interested', 'Call Back', 'Rejected', 'Wrong Number'].includes(status)) {
                 statusText.textContent = status;
                 reasonText.value = '';
                 modal.style.display = 'flex';
@@ -484,6 +495,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 // Show status name on screen
                 showStatusMessage(status);
+                
+                // Check if this is an intern redirect
+                if (data.redirect) {
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 1500);
+                }
                 
                 // Immediately remove the row
                 row.remove();

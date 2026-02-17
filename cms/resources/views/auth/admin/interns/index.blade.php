@@ -1,0 +1,479 @@
+@extends('auth.layouts.app')
+
+@section('title', 'Interns Management')
+
+@section('styles')
+<style>
+.interns-card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.interns-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.interns-table th,
+.interns-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.interns-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+}
+
+.status-select {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: white;
+}
+
+.whatsapp-btn {
+    background-color: #25d366;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.location-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.view-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.schedule-btn {
+    background-color: #17a2b8;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.upload-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.search-container {
+    margin-bottom: 20px;
+}
+
+.search-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 40px 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.search-box i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+}
+
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 500px;
+    border-radius: 8px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.close {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+</style>
+<style>
+    .card-header{
+        margin-top: 70px;
+        display: flex;
+    }
+    .btn-secondary{
+        margin-left: 600px;
+    }
+</style>
+@endsection
+
+@section('header')
+<div class="header-upload">
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+    
+    <form action="{{ route('admin.interns.upload') }}" method="POST" enctype="multipart/form-data" class="upload-form">
+        @csrf
+        <select name="role" required>
+            <option value="">Select Internship Type</option>
+            <option value="Web Development">Web Development</option>
+            <option value="Mobile Development">Mobile Development</option>
+            <option value="Data Science">Data Science</option>
+            <option value="Digital Marketing">Digital Marketing</option>
+            <option value="UI/UX Design">UI/UX Design</option>
+            <option value="Content Writing">Content Writing</option>
+        </select>
+        <input type="file" name="excel_file" accept=".xlsx,.xls,.csv" required>
+        <button type="submit" class="upload-btn">Upload Excel</button>
+        <small class="text-muted">Excel format: Column A = Number, Column B = Name</small>
+    </form>
+</div>
+@endsection
+
+@section('content')
+<div class="main-content">
+    <div class="card interns-card">
+        <div class="card-header">
+            <h4>Interns List</h4>
+            <div>
+                <a href="{{ route('admin.interns.interested') }}" class="btn btn-success btn-sm">Interested</a>
+                <a href="{{ route('admin.interns.rejected') }}" class="btn btn-danger btn-sm">Rejected</a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="search-container">
+                <form method="GET" action="{{ route('admin.interns.index') }}" class="search-form">
+                    <div class="search-box">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" name="search" placeholder="Search by name, number, or role..." value="{{ request('search') }}">
+                        @if(request('search'))
+                            <a href="{{ route('admin.interns.index') }}" class="clear-btn">Clear</a>
+                        @endif
+                    </div>
+                </form>
+                <div class="results-info">
+                    <span>{{ $interns->total() }} results</span>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="interns-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Number</th>
+                            <th>Status</th>
+                            <th>Internship Type</th>
+                            <th>WhatsApp</th>
+                            <th>Send Location</th>
+                            <!-- <th>View Profile</th>
+                            <th>Actions</th> -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($interns as $intern)
+                        <tr>
+                            <td>{{ $intern->name }}</td>
+                            <td>{{ $intern->number }}</td>
+                            <td>
+                                <select class="status-select" data-id="{{ $intern->id }}">
+                                    <option value="">Select Status</option>
+                                    <option value="Not Interested" {{ $intern->condition_status == 'Not Interested' ? 'selected' : '' }}>Not Interested</option>
+                                    <option value="Call Back" {{ $intern->condition_status == 'Call Back' ? 'selected' : '' }}>Call Back</option>
+                                    <option value="Interested" {{ $intern->condition_status == 'Interested' ? 'selected' : '' }}>Interested</option>
+                                    <option value="Rejected" {{ $intern->condition_status == 'Rejected' ? 'selected' : '' }}>Rejected</option>
+                                    <option value="Wrong Number" {{ $intern->condition_status == 'Wrong Number' ? 'selected' : '' }}>Wrong Number</option>
+                                </select>
+                            </td>
+                            <td>{{ $intern->role }}</td>
+                            <td>
+                            @php
+$message = "We are pleased to inform you about our Internship Training Program opportunity.\n\n".
+"Program Details\n\n".
+"💼 Program: {$intern->role} Internship Training Program\n".
+"🏤 Company: Kwikster Innovative Optimisations Pvt Ltd.\n".
+"📌 Location: 21/284, Kaveri Path, Sector 21, Mansarovar, Jaipur\n\n".
+"This program is designed to provide practical industry exposure and hands-on training.\n\n".
+"Reply \"Yes\" to know more.\n\n".
+"Best Regards,\nHR Team";
+@endphp
+
+                                <a href="https://wa.me/91{{ $intern->number }}?text={{ urlencode($message) }}" target="_blank" class="whatsapp-btn">
+                                    <i class="fa-brands fa-whatsapp"></i>
+                                </a>
+                            </td>
+                            <td>
+                                <a href="https://wa.me/91{{ $intern->number }}?text=https://share.google/j1HSKuOut2VpIweKA" target="_blank" class="location-btn">
+                                    <i class="fa-solid fa-location-dot"></i> Location
+                                </a>
+                            </td>
+                           
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="8" style="text-align:center;">No interns found</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            
+            @if($interns->hasPages())
+            <div class="pagination-container">
+                {{ $interns->appends(request()->query())->links('pagination::bootstrap-4') }}
+            </div>
+            @endif
+        </div>
+    </div>
+</div>
+
+<!-- Mentor Assignment Modal -->
+<div id="mentorModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5>Assign Mentor</h5>
+            <span class="close" onclick="closeMentorModal()">&times;</span>
+        </div>
+        <form id="mentorForm" method="POST">
+            @csrf
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Select Mentor</label>
+                    <select name="mentor_id" required>
+                        <option value="">Choose Mentor</option>
+                        @foreach(\App\Models\Employee::where('user_type', 'employee')->where('is_approved', true)->get() as $employee)
+                            <option value="{{ $employee->id }}">{{ $employee->first_name }} {{ $employee->last_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Internship Duration (months)</label>
+                    <input type="number" name="internship_duration" min="1" max="12" required>
+                </div>
+                <div class="form-group">
+                    <label>Monthly Stipend (₹)</label>
+                    <input type="number" name="stipend" min="0" step="100">
+                </div>
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" name="start_date" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Assign Mentor</button>
+                <button type="button" class="btn btn-secondary" onclick="closeMentorModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Reason Modal -->
+<div id="reasonModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5>Status Change Reason</h5>
+            <span class="close" onclick="closeReasonModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Please provide a reason for changing status to <strong id="statusText"></strong>:</p>
+            <textarea id="reasonText" placeholder="Enter reason..." rows="4"></textarea>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeReasonModal()">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="saveStatusWithReason()">Save</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentInternId = null;
+let currentStatus = null;
+let currentRow = null;
+
+function showReasonModal(internId, status, row) {
+    currentInternId = internId;
+    currentStatus = status;
+    currentRow = row;
+    
+    document.getElementById('statusText').textContent = status;
+    document.getElementById('reasonText').value = '';
+    document.getElementById('reasonModal').style.display = 'flex';
+}
+
+function closeReasonModal() {
+    document.getElementById('reasonModal').style.display = 'none';
+    if (currentRow) {
+        currentRow.querySelector('.status-select').value = '';
+    }
+    currentInternId = null;
+    currentStatus = null;
+    currentRow = null;
+}
+
+function saveStatusWithReason() {
+    const reason = document.getElementById('reasonText').value.trim();
+    if (!reason) {
+        alert('Please provide a reason');
+        return;
+    }
+    
+    updateInternStatus(currentInternId, currentStatus, reason, currentRow);
+    closeReasonModal();
+}
+
+function showMentorModal(internId) {
+    document.getElementById('mentorForm').action = `/admin/interns/${internId}/assign-mentor`;
+    document.getElementById('mentorModal').style.display = 'block';
+}
+
+function closeMentorModal() {
+    document.getElementById('mentorModal').style.display = 'none';
+}
+
+// Status update
+document.querySelectorAll('.status-select').forEach(select => {
+    select.addEventListener('change', function() {
+        const internId = this.dataset.id;
+        const status = this.value;
+        const row = this.closest('tr');
+        
+        if (!status) return;
+        
+        // Show reason modal for all statuses except Interested
+        if (status !== 'Interested') {
+            showReasonModal(internId, status, row);
+        } else {
+            updateInternStatus(internId, status, '', row);
+        }
+    });
+});
+
+function updateInternStatus(internId, status, reason, row) {
+    const formData = new FormData();
+    formData.append('status', status);
+    formData.append('reason', reason);
+    formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+    
+    fetch(`/admin/interns/${internId}/status`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            alert('Status updated successfully!');
+            // Redirect to appropriate page
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            } else {
+                // Remove row from table if no redirect
+                row.remove();
+            }
+        } else {
+            alert('Error updating status');
+            row.querySelector('.status-select').value = '';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Network error occurred');
+        row.querySelector('.status-select').value = '';
+    });
+}
+</script>
+@endsection

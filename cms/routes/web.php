@@ -396,6 +396,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/send-bulk-mail', [EmployeeController::class, 'sendBulkMail'])
                 ->name('send.bulk.mail');
 
+            Route::post('/employees/quick-add', [EmployeeController::class, 'quickAdd'])
+                ->name('employees.quick-add');
+
             /*
             |--------------------------------------------------------------------------
             | APPROVE USER
@@ -439,6 +442,38 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/leads/rejected', [LeadController::class, 'rejected'])->name('leads.rejected');
             Route::get('/leads/not-interested', [LeadController::class, 'notInterested'])->name('leads.not-interested');
             Route::get('/leads/wrong-number', [LeadController::class, 'wrongNumber'])->name('leads.wrong-number');
+            
+            /*
+            |--------------------------------------------------------------------------
+            | INTERNS MANAGEMENT (SEPARATE FROM EMPLOYEES)
+            |--------------------------------------------------------------------------
+            */
+            Route::get('/interns', [App\Http\Controllers\Admin\InternController::class, 'index'])->name('interns.index');
+            Route::post('/interns/upload', [App\Http\Controllers\Admin\InternController::class, 'uploadExcel'])->name('interns.upload');
+            Route::post('/interns/{id}/status', [App\Http\Controllers\Admin\InternController::class, 'updateStatus'])->name('interns.status');
+            Route::get('/interns/{id}/profile', [App\Http\Controllers\Admin\InternController::class, 'showProfile'])->name('interns.profile');
+            Route::post('/interns/{id}/resume', [App\Http\Controllers\Admin\InternController::class, 'uploadResume'])->name('interns.resume.upload');
+            Route::get('/interns/interested', [App\Http\Controllers\Admin\InternController::class, 'interested'])->name('interns.interested');
+            Route::get('/interns/rejected', [App\Http\Controllers\Admin\InternController::class, 'rejected'])->name('interns.rejected');
+            Route::get('/interns/not-interested', [App\Http\Controllers\Admin\InternController::class, 'notInterested'])->name('interns.not-interested');
+            Route::get('/interns/wrong-number', [App\Http\Controllers\Admin\InternController::class, 'wrongNumber'])->name('interns.wrong-number');
+            Route::post('/interns/{id}/assign-mentor', [App\Http\Controllers\Admin\InternController::class, 'assignMentor'])->name('interns.assign-mentor');
+            Route::get('/interns/{id}/ongoing', [App\Http\Controllers\Admin\InternController::class, 'showOngoing'])->name('interns.ongoing');
+            Route::get('/interns/ongoing-list', [App\Http\Controllers\Admin\InternController::class, 'ongoingList'])->name('interns.ongoing-list');
+            Route::get('/interns/profiles', [App\Http\Controllers\Admin\InternController::class, 'profiles'])->name('interns.profiles');
+            Route::get('/interns/{id}/edit-profile', [App\Http\Controllers\Admin\InternController::class, 'editProfile'])->name('interns.edit-profile');
+            Route::post('/interns/{id}/update-profile', [App\Http\Controllers\Admin\InternController::class, 'updateProfile'])->name('interns.update-profile');
+            Route::get('/interns/{id}/payment', [App\Http\Controllers\Admin\InternController::class, 'payment'])->name('interns.payment');
+            Route::post('/interns/{id}/add-payment', [App\Http\Controllers\Admin\InternController::class, 'addPayment'])->name('interns.add-payment');
+            Route::get('/interns/{id}/generate-payslip', [App\Http\Controllers\Admin\InternController::class, 'generatePayslip'])->name('interns.generate-payslip');
+            Route::post('/interns/{id}/update-stipend', [App\Http\Controllers\Admin\InternController::class, 'updateStipend'])->name('interns.update-stipend');
+            Route::post('/interns/{id}/setup-ongoing', [App\Http\Controllers\Admin\InternController::class, 'setupOngoing'])->name('interns.setup-ongoing');
+            
+            // Intern Callbacks
+            Route::get('/interns/callbacks', [App\Http\Controllers\Admin\InternController::class, 'callbacks'])->name('interns.callbacks');
+            Route::put('/interns/callbacks/{id}', [App\Http\Controllers\Admin\InternController::class, 'updateCallback'])->name('interns.callbacks.update');
+            Route::delete('/interns/callbacks/{id}', [App\Http\Controllers\Admin\InternController::class, 'deleteCallback'])->name('interns.callbacks.delete');
+            Route::post('/interns/callbacks/{id}/status', [App\Http\Controllers\Admin\InternController::class, 'updateCallbackStatus'])->name('interns.callbacks.status');
             
             /*
             |--------------------------------------------------------------------------

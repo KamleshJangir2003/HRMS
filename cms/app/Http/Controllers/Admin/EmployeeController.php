@@ -273,4 +273,53 @@ class EmployeeController extends Controller
 
         return redirect()->back()->with('success', 'Profile updated successfully!');
     }
+
+    public function quickAdd(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'full_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:employees,email',
+            'phone' => 'required|string|max:20',
+            'department' => 'required|string|max:255',
+            'user_type' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first()
+            ]);
+        }
+
+        try {
+            // Split full name into first and last name
+            $nameParts = explode(' ', $request->full_name, 2);
+            $firstName = $nameParts[0];
+            $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
+
+            $employee = Employee::create([
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'full_name' => $request->full_name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'department' => $request->department,
+                'user_type' => $request->user_type,
+                'password' => Hash::make('password123'), // Default password
+                'is_approved' => true,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Employee added successfully!',
+                'employee' => $employee
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error creating employee: ' . $e->getMessage()
+            ]);
+        }
+    }
 }

@@ -340,6 +340,22 @@
             </ul>
         </li>
 
+        <!-- Interns Management -->
+        <li class="has-sub">
+            <a href="#">
+            <i class="fa-solid fa-graduation-cap"></i> Interns</a>
+            <ul class="submenu">
+                <a href="{{ route('admin.interns.index') }}">All Interns</a>
+                <a href="{{ route('admin.interns.callbacks') }}">Intern Callbacks</a>
+                <a href="{{ route('admin.interns.interested') }}">Interested Interns</a>
+                <a href="{{ route('admin.interns.ongoing-list') }}">Ongoing Interns</a>
+                <a href="{{ route('admin.interns.rejected') }}">Rejected Interns</a>
+                <a href="{{ route('admin.interns.not-interested') }}">Not Interested</a>
+                <a href="{{ route('admin.interns.wrong-number') }}">Wrong Number</a>
+                <a href="{{ route('admin.interns.profiles') }}">Intern Profiles</a>
+            </ul>
+        </li>
+
         <!-- Leave Management -->
         <li class="has-sub">
             <a href="#">

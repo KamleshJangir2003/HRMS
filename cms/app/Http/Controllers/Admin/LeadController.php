@@ -138,33 +138,63 @@ class LeadController extends Controller
 
                 $number = (string) $number;
 
-                // Check for duplicate mobile number
-                if (Lead::where('number', $number)->exists()) {
+                // Check for duplicate mobile number in both leads and interns tables
+                if (Lead::where('number', $number)->exists() || \App\Models\Intern::where('number', $number)->exists()) {
                     $duplicates++;
                     continue;
                 }
 
-                // Save lead with enhanced error handling
+                // Check if this is an intern role
+                $internRoles = ['Web Development', 'Mobile Development', 'Data Science', 'Digital Marketing', 'UI/UX Design', 'Content Writing', 'Intern'];
+                $isIntern = in_array($role, $internRoles) || stripos($role, 'intern') !== false;
+                
+                // Save to appropriate table based on role type
                 try {
-                    $leadData = [
-                        'number' => $number,
-                        'name' => $name,
-                        'role' => $role,
-                        'platform' => $platform,
-                        'condition_status' => ''
-                    ];
-                    
-                    \Log::info('Attempting to create lead', $leadData);
-                    
-                    $lead = Lead::create($leadData);
-                    
-                    if ($lead && $lead->id) {
-                        $imported++;
-                        \Log::info('Lead created successfully', ['id' => $lead->id, 'name' => $name]);
+                    if ($isIntern) {
+                        // Save directly to interns table for intern roles
+                        $internData = [
+                            'number' => $number,
+                            'name' => $name,
+                            'role' => $role,
+                            'platform' => $platform,
+                            'condition_status' => '',
+                            'final_result' => 'Pending'
+                        ];
+                        
+                        \Log::info('Attempting to create intern', $internData);
+                        
+                        $intern = \App\Models\Intern::create($internData);
+                        
+                        if ($intern && $intern->id) {
+                            $imported++;
+                            \Log::info('Intern created successfully', ['id' => $intern->id, 'name' => $name]);
+                        } else {
+                            $skipped++;
+                            $errors[] = "Row {$index}: Failed to create intern for {$name}";
+                            \Log::error('Intern creation returned null or no ID', $internData);
+                        }
                     } else {
-                        $skipped++;
-                        $errors[] = "Row {$index}: Failed to create lead for {$name}";
-                        \Log::error('Lead creation returned null or no ID', $leadData);
+                        // Save to leads table for regular employee roles
+                        $leadData = [
+                            'number' => $number,
+                            'name' => $name,
+                            'role' => $role,
+                            'platform' => $platform,
+                            'condition_status' => ''
+                        ];
+                        
+                        \Log::info('Attempting to create lead', $leadData);
+                        
+                        $lead = Lead::create($leadData);
+                        
+                        if ($lead && $lead->id) {
+                            $imported++;
+                            \Log::info('Lead created successfully', ['id' => $lead->id, 'name' => $name]);
+                        } else {
+                            $skipped++;
+                            $errors[] = "Row {$index}: Failed to create lead for {$name}";
+                            \Log::error('Lead creation returned null or no ID', $leadData);
+                        }
                     }
                     
                 } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
@@ -275,11 +305,16 @@ class LeadController extends Controller
                 'lead_id' => $id,
                 'old_status' => $lead->condition_status,
                 'new_status' => $status,
-                'reason' => $reason
+                'reason' => $reason,
+                'role' => $lead->role
             ]);
             
+            // Check if this is an intern role
+            $internRoles = ['Web Development', 'Mobile Development', 'Data Science', 'Digital Marketing', 'UI/UX Design', 'Content Writing', 'Intern'];
+            $isIntern = in_array($lead->role, $internRoles) || stripos($lead->role, 'intern') !== false;
+            
             // Validate reason for specific statuses
-            if (in_array($status, ['Not Interested', 'Call Back', 'Rejected']) && empty($reason)) {
+            if (in_array($status, ['Not Interested', 'Call Back', 'Rejected', 'Wrong Number']) && empty($reason)) {
                 return response()->json(['success' => false, 'message' => 'Reason is required for this status']);
             }
             
@@ -288,68 +323,141 @@ class LeadController extends Controller
             
             try {
                 if ($status === 'Call Back') {
-                    // Move to callbacks table
-                    Callback::create([
-                        'number' => $lead->number,
-                        'name' => $lead->name,
-                        'role' => $lead->role,
-                        'platform' => $lead->platform,
-                        'callback_date' => now()->addDay(),
-                        'notes' => $reason,
-                        'status' => 'call_backs'
-                    ]);
-                    
-                    // Remove from leads
-                    $lead->delete();
-                    
-                    \DB::commit();
-                    Log::info('Lead moved to callbacks', ['lead_id' => $id]);
-                    return response()->json(['success' => true, 'message' => 'Lead moved to callbacks']);
+                    if ($isIntern) {
+                        // Move to intern callbacks table
+                        \App\Models\InternCallback::create([
+                            'number' => $lead->number,
+                            'name' => $lead->name,
+                            'role' => $lead->role,
+                            'platform' => $lead->platform,
+                            'callback_date' => now()->addDay(),
+                            'notes' => $reason,
+                            'status' => 'pending'
+                        ]);
+                        
+                        // Remove from leads
+                        $lead->delete();
+                        
+                        \DB::commit();
+                        Log::info('Intern lead moved to intern callbacks', ['lead_id' => $id]);
+                        return response()->json(['success' => true, 'message' => 'Intern moved to callbacks', 'redirect' => '/admin/interns/callbacks']);
+                    } else {
+                        // Move to regular callbacks table
+                        Callback::create([
+                            'number' => $lead->number,
+                            'name' => $lead->name,
+                            'role' => $lead->role,
+                            'platform' => $lead->platform,
+                            'callback_date' => now()->addDay(),
+                            'notes' => $reason,
+                            'status' => 'call_backs'
+                        ]);
+                        
+                        // Remove from leads
+                        $lead->delete();
+                        
+                        \DB::commit();
+                        Log::info('Lead moved to callbacks', ['lead_id' => $id]);
+                        return response()->json(['success' => true, 'message' => 'Lead moved to callbacks']);
+                    }
                 } elseif ($status === 'Intrested') {
-                    // Save to interested_candidates table
-                    InterestedCandidate::updateOrCreate(
-                        ['number' => $lead->number],
-                        [
+                    if ($isIntern) {
+                        // Move to interns table for intern roles
+                        \App\Models\Intern::create([
+                            'number' => $lead->number,
                             'name' => $lead->name,
                             'email' => $lead->email,
                             'role' => $lead->role,
                             'platform' => $lead->platform,
                             'resume' => $lead->resume,
-                            'status' => 'interested',
-                            'interested_at' => now()
-                        ]
-                    );
-                    
-                    // Update status in leads table
-                    $lead->condition_status = $status;
-                    $lead->save();
-                    
-                    \DB::commit();
-                    Log::info('Lead marked as interested', ['lead_id' => $id]);
-                    return response()->json(['success' => true, 'message' => 'Candidate marked as interested and saved to database']);
-                } else {
-                    // Update status and reason in database for all other statuses
-                    $lead->condition_status = $status;
-                    if (!empty($reason)) {
-                        $lead->reason = $reason;
+                            'condition_status' => 'Interested',
+                            'final_result' => 'Pending'
+                        ]);
+                        
+                        // Remove from leads
+                        $lead->delete();
+                        
+                        \DB::commit();
+                        Log::info('Intern lead moved to interns table', ['lead_id' => $id, 'role' => $lead->role]);
+                        return response()->json(['success' => true, 'message' => 'Intern moved to internship management', 'redirect' => '/admin/interns']);
+                    } else {
+                        // Save to interested_candidates table for regular employees
+                        InterestedCandidate::updateOrCreate(
+                            ['number' => $lead->number],
+                            [
+                                'name' => $lead->name,
+                                'email' => $lead->email,
+                                'role' => $lead->role,
+                                'platform' => $lead->platform,
+                                'resume' => $lead->resume,
+                                'status' => 'interested',
+                                'interested_at' => now()
+                            ]
+                        );
+                        
+                        // Update status in leads table
+                        $lead->condition_status = $status;
+                        $lead->save();
+                        
+                        \DB::commit();
+                        Log::info('Lead marked as interested', ['lead_id' => $id]);
+                        return response()->json(['success' => true, 'message' => 'Candidate marked as interested and saved to database']);
                     }
-                    $lead->save();
-                    
-                    \DB::commit();
-                    Log::info('Lead status updated', [
-                        'lead_id' => $id,
-                        'new_status' => $status,
-                        'reason' => $reason
-                    ]);
-                    
-                    // Log activity
-                    \App\Models\ActivityLog::log(
-                        'Updated Lead Status', 
-                        'Lead Management', 
-                        "Changed lead status to {$status} for {$lead->name}"
-                    );
-                    
-                    return response()->json(['success' => true, 'message' => 'Status updated successfully']);
+                } else {
+                    // Handle other statuses (Wrong Number, Rejected, Not Interested)
+                    if ($isIntern) {
+                        // Move intern to appropriate intern table with status
+                        \App\Models\Intern::create([
+                            'number' => $lead->number,
+                            'name' => $lead->name,
+                            'email' => $lead->email,
+                            'role' => $lead->role,
+                            'platform' => $lead->platform,
+                            'resume' => $lead->resume,
+                            'condition_status' => $status,
+                            'reason' => $reason,
+                            'final_result' => 'Pending'
+                        ]);
+                        
+                        // Remove from leads
+                        $lead->delete();
+                        
+                        \DB::commit();
+                        Log::info('Intern lead moved to interns table with status', ['lead_id' => $id, 'status' => $status]);
+                        
+                        // Redirect based on status
+                        $redirectMap = [
+                            'Wrong Number' => '/admin/interns/wrong-number',
+                            'Rejected' => '/admin/interns/rejected',
+                            'Not Interested' => '/admin/interns/not-interested'
+                        ];
+                        
+                        $redirect = $redirectMap[$status] ?? '/admin/interns';
+                        return response()->json(['success' => true, 'message' => 'Intern status updated', 'redirect' => $redirect]);
+                    } else {
+                        // Update status and reason in leads table for regular employees
+                        $lead->condition_status = $status;
+                        if (!empty($reason)) {
+                            $lead->reason = $reason;
+                        }
+                        $lead->save();
+                        
+                        \DB::commit();
+                        Log::info('Lead status updated', [
+                            'lead_id' => $id,
+                            'new_status' => $status,
+                            'reason' => $reason
+                        ]);
+                        
+                        // Log activity
+                        \App\Models\ActivityLog::log(
+                            'Updated Lead Status', 
+                            'Lead Management', 
+                            "Changed lead status to {$status} for {$lead->name}"
+                        );
+                        
+                        return response()->json(['success' => true, 'message' => 'Status updated successfully']);
+                    }
                 }
             } catch (\Exception $dbError) {
                 \DB::rollback();
@@ -603,27 +711,49 @@ class LeadController extends Controller
                 'platform' => 'nullable|string'
             ]);
 
-            // Check for duplicate mobile number
-            if (Lead::where('number', $request->number)->exists()) {
+            // Check for duplicate mobile number in both leads and interns tables
+            if (Lead::where('number', $request->number)->exists() || \App\Models\Intern::where('number', $request->number)->exists()) {
                 return response()->json(['success' => false, 'message' => 'This number already exists']);
             }
+
+            // Check if this is an intern role
+            $internRoles = ['Web Development', 'Mobile Development', 'Data Science', 'Digital Marketing', 'UI/UX Design', 'Content Writing', 'Intern'];
+            $isIntern = in_array($request->role, $internRoles) || stripos($request->role, 'intern') !== false;
 
             // Use database transaction
             \DB::beginTransaction();
             
             try {
-                $lead = Lead::create([
-                    'name' => $request->name,
-                    'number' => $request->number,
-                    'role' => $request->role,
-                    'platform' => $request->platform,
-                    'condition_status' => ''
-                ]);
-                
-                \DB::commit();
-                \Log::info('Manual lead saved successfully', ['lead_id' => $lead->id]);
-                
-                return response()->json(['success' => true, 'message' => 'Lead saved successfully']);
+                if ($isIntern) {
+                    // Save to interns table for intern roles
+                    $intern = \App\Models\Intern::create([
+                        'name' => $request->name,
+                        'number' => $request->number,
+                        'role' => $request->role,
+                        'platform' => $request->platform,
+                        'condition_status' => '',
+                        'final_result' => 'Pending'
+                    ]);
+                    
+                    \DB::commit();
+                    \Log::info('Manual intern saved successfully', ['intern_id' => $intern->id]);
+                    
+                    return response()->json(['success' => true, 'message' => 'Intern saved successfully', 'redirect' => '/admin/interns']);
+                } else {
+                    // Save to leads table for regular employee roles
+                    $lead = Lead::create([
+                        'name' => $request->name,
+                        'number' => $request->number,
+                        'role' => $request->role,
+                        'platform' => $request->platform,
+                        'condition_status' => ''
+                    ]);
+                    
+                    \DB::commit();
+                    \Log::info('Manual lead saved successfully', ['lead_id' => $lead->id]);
+                    
+                    return response()->json(['success' => true, 'message' => 'Lead saved successfully']);
+                }
             } catch (\Exception $dbError) {
                 \DB::rollback();
                 throw $dbError;
