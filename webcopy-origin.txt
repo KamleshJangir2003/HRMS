@@ -838,7 +838,7 @@ Uri: https://php.kitmama.top/techguru/assets/images/resources/footer-logo.png
 File Name: C:\Users\Admin\Downloads\kwikster-web\php.kitmama.top\techguru\assets\images\resources\footer-logo.png
 Content Type: image/png
 
-Uri: https://php.kitmama.top/techguru/assets/images/resources/logo-1.png
+Uri: https://php.kitmama.top/techguru/assets/images/resources/logo-1.jpeg
 File Name: C:\Users\Admin\Downloads\kwikster-web\php.kitmama.top\techguru\assets\images\resources\logo-1.png
 Content Type: image/png
 
