@@ -125,14 +125,14 @@
                     <div class="main-menu-two__wrapper-inner">
                         <div class="main-menu-two__left">
                             <div class="main-menu-two__logo">
-                                <a href="../index.php.html"><img src="assets/images/resources/logo-1.jpeg" alt="" style="width: 200px; height: 45px;"></a>
+                                <a href="../index.html"><img src="assets/images/resources/logo-1.jpeg" alt="" style="width: 200px; height: 45px;"></a>
                             </div>
                         </div>
                         <div class="main-menu-two__main-menu-box">
                             <a href="#" class="mobile-nav__toggler"><i class="fa fa-bars"></i></a>
                             <ul class="main-menu__list">
                                 <li>
-                                    <a href="../index.php.html">Home </a>
+                                    <a href="../index.html">Home </a>
                                    
                                 </li>
                                 <li>
@@ -227,60 +227,88 @@
                             <div class="contact-one__left-shape-1"></div>
                             <div class="contact-one__left-shape-2"></div>
                             <h3 class="contact-one__from-title">How Can We Help You?</h3>
-                            <form class="contact-form-validated contact-one__form" action="assets/inc/sendemail.php" method="POST">
-                                <div class="row">
-                                    <div class="col-xl-6 col-lg-6">
-                                        <h4 class="contact-one__input-title">Full Name</h4>
-                                        <div class="contact-one__input-box">
-                                            <div class="contact-one__input-icon">
-                                                <span class="icon-user-1"></span>
-                                            </div>
-                                            <input type="text" name="name" placeholder="Full Name" required="">
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-6 col-lg-6">
-                                        <h4 class="contact-one__input-title">Email Address</h4>
-                                        <div class="contact-one__input-box">
-                                            <div class="contact-one__input-icon">
-                                                <span class="icon-email"></span>
-                                            </div>
-                                            <input type="email" name="email" placeholder="Email" required="">
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-6 col-lg-6">
-                                        <h4 class="contact-one__input-title">Phone Number</h4>
-                                        <div class="contact-one__input-box">
-                                            <div class="contact-one__input-icon">
-                                                <span class="icon-phone-call"></span>
-                                            </div>
-                                            <input type="text" name="phone" placeholder="+91 " required="">
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-6 col-lg-6">
-                                        <h4 class="contact-one__input-title">Subject</h4>
-                                        <div class="contact-one__input-box">
-                                            <div class="contact-one__input-icon">
-                                                <span class="icon-edit"></span>
-                                            </div>
-                                            <input type="text" placeholder="Subject" name="subject">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xl-12">
-                                    <h4 class="contact-one__input-title">Inquiry about </h4>
-                                    <div class="contact-one__input-box text-message-box">
-                                        <div class="contact-one__input-icon">
-                                            <span class="icon-edit"></span>
-                                        </div>
-                                        <textarea name="message" placeholder="Write your message"></textarea>
-                                    </div>
-                                    <div class="contact-one__btn-box">
-                                        <button type="submit" class="thm-btn"><span>Submit
-                                                Now</span><i class="icon-right-arrow"></i></button>
-                                    </div>
-                                </div>
-                                 <div class="result"></div>
-                            </form>
+                           <form class="contact-form-validated contact-one__form" 
+      action="https://api.web3forms.com/submit" 
+      method="POST">
+
+    <!-- Web3Forms Access Key -->
+    <input type="hidden" name="access_key" value="00c1bb87-020e-4aab-b7d7-ff0d46afe156">
+
+    <div class="row">
+
+        <div class="col-xl-6 col-lg-6">
+            <h4 class="contact-one__input-title">Full Name</h4>
+            <div class="contact-one__input-box">
+                <div class="contact-one__input-icon">
+                    <span class="icon-user-1"></span>
+                </div>
+                <input type="text" name="name" placeholder="Full Name" required>
+            </div>
+        </div>
+
+        <div class="col-xl-6 col-lg-6">
+            <h4 class="contact-one__input-title">Email Address</h4>
+            <div class="contact-one__input-box">
+                <div class="contact-one__input-icon">
+                    <span class="icon-email"></span>
+                </div>
+                <input type="email" name="email" placeholder="Email" required>
+            </div>
+        </div>
+
+        <div class="col-xl-6 col-lg-6">
+            <h4 class="contact-one__input-title">Phone Number</h4>
+            <div class="contact-one__input-box">
+                <div class="contact-one__input-icon">
+                    <span class="icon-phone-call"></span>
+                </div>
+                <input type="text" name="phone" placeholder="+91" required>
+            </div>
+        </div>
+
+        <div class="col-xl-6 col-lg-6">
+            <h4 class="contact-one__input-title">Subject</h4>
+            <div class="contact-one__input-box">
+                <div class="contact-one__input-icon">
+                    <span class="icon-edit"></span>
+                </div>
+
+                <!-- Dropdown Subject -->
+                <select name="subject" required style="width:100%; padding:10px;">
+                    <option value="">Select Subject</option>
+                    <option value="PHP Intern">PHP Intern</option>
+                    <option value="Python Intern">Python Intern</option>
+                    <option value="HR Intern">HR Intern</option>
+                    <option value="Web Development">Web Development</option>
+                </select>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-xl-12">
+        <h4 class="contact-one__input-title">Inquiry about</h4>
+        <div class="contact-one__input-box text-message-box">
+            <div class="contact-one__input-icon">
+                <span class="icon-edit"></span>
+            </div>
+            <textarea name="message" placeholder="Write your message" required></textarea>
+        </div>
+
+        <!-- Optional -->
+        <input type="hidden" name="from_name" value="Website Contact Form">
+
+        <div class="contact-one__btn-box">
+            <button type="submit" class="thm-btn">
+                <span>Submit Now</span>
+                <i class="icon-right-arrow"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="result"></div>
+</form>
                            
                         </div>
                     </div>
@@ -504,7 +532,7 @@
                         <div class="col-xl-4 col-lg-6 col-md-6 wow fadeInUp" data-wow-delay="100ms">
                             <div class="site-footer-two__about">
                                 <div class="site-footer-two__logo">
-                                    <a href="../index.php.html"><img src="assets/images/resources/logo-1.jpeg" alt="" style="width: 200px; height: 45px;"></a>
+                                    <a href="../index.html"><img src="assets/images/resources/logo-1.jpeg" alt="" style="width: 200px; height: 45px;"></a>
                                 </div>
                                 <ul class="list-unstyled site-footer-two__contact-list">
                                     <li>
@@ -687,7 +715,7 @@ Jaipur, Rajasthan 302021
                     <div class="sidebar-info-contents">
                         <div class="content-inner">
                             <div class="logo">
-                                <a href="../index.php.html"><img src="assets/images/resources/logo-1.jpeg" alt="" style="width: 200px; height: 45px;"></a>
+                                <a href="../index.html"><img src="assets/images/resources/logo-1.jpeg" alt="" style="width: 200px; height: 45px;"></a>
                             </div>
                             <div class="content-box">
                                 <h4>About Us</h4>
